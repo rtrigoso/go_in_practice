@@ -10,7 +10,7 @@ import (
 
 func main() {
 	callEchoExample()
-	callAnonFunction()
+	callAnonExample()
 	os.Exit(0)
 }
 
@@ -24,11 +24,11 @@ func callEchoExample() {
 	fmt.Println("[callEchoExample] Timed out.")
 }
 
-func callAnonFunction() {
-	fmt.Println("[callAnonFunction] outside goroutine")
+func callAnonExample() {
+	fmt.Println("[callAnonExample] outside goroutine")
 	go func() {
-		fmt.Println("[callAnonFunction] inside a goroutine")
+		fmt.Println("[callAnonExample] inside a goroutine")
 	}()
-	fmt.Println("[callAnonFunction] outside goroutine again")
+	fmt.Println("[callAnonExample] outside goroutine again")
 	runtime.Gosched()
 }
