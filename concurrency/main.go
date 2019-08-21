@@ -12,11 +12,12 @@ import (
 )
 
 func main() {
-	// callEchoExample()
+	callEchoExample()
 	callChannelCloseExample()
 	callAnonExample()
 	callMutexLockExample()
 	callMulitpleChannelsExample()
+	callLockingWithChannelsExample()
 	os.Exit(0)
 }
 
@@ -132,6 +133,19 @@ func callMulitpleChannelsExample() {
 	}
 }
 
+func send(ch chan string, done <-chan bool) {
+	for {
+		if <-done {
+			close(ch)
+			fmt.Println("[callChannelClosedExample] ch closed")
+			return
+		}
+
+		ch <- "hello"
+		time.Sleep(200 * time.Millisecond)
+	}
+}
+
 func callChannelCloseExample() {
 	fmt.Println("[callChannelCloseExample] start")
 	msg := make(chan string)
@@ -155,15 +169,19 @@ func callChannelCloseExample() {
 	}
 }
 
-func send(ch chan string, done <-chan bool) {
-	for {
-		if <-done {
-			close(ch)
-			fmt.Println("[callChannelClosedExample] ch closed")
-			return
-		}
+func worker(id int, lock chan bool) {
+	fmt.Println("[callLockingWithChannelsExample] start worker ", id)
+	lock <- true
+	fmt.Println("[callLockingWithChannelsExample] locked worker ", id)
+	time.Sleep(500 * time.Millisecond)
+	fmt.Println(id, " is releasing its lock")
+	<-lock
+}
 
-		ch <- "hello"
-		time.Sleep(200 * time.Millisecond)
+func callLockingWithChannelsExample() {
+	lock := make(chan bool, 1)
+	for i := 0; i < 12; i++ {
+		go worker(i, lock)
+		time.Sleep(10 * time.Second)
 	}
 }
