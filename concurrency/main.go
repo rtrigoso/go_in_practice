@@ -13,6 +13,7 @@ import (
 
 func main() {
 	// callEchoExample()
+	callChannelCloseExample()
 	callAnonExample()
 	callMutexLockExample()
 	callMulitpleChannelsExample()
@@ -128,5 +129,41 @@ func callMulitpleChannelsExample() {
 			fmt.Println("Timed out")
 			os.Exit(0)
 		}
+	}
+}
+
+func callChannelCloseExample() {
+	fmt.Println("[callChannelCloseExample] start")
+	msg := make(chan string)
+	until := time.After(5 * time.Second)
+	done := make(chan bool)
+
+	go send(msg, done)
+
+	for {
+		select {
+		case m := <-msg:
+			fmt.Println(m)
+		case <-until:
+			done <- true
+			fmt.Println("[callChannelClosedExampled] Timed out")
+			return
+		default:
+			fmt.Println("**yawn**")
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+}
+
+func send(ch chan string, done <-chan bool) {
+	for {
+		if <-done {
+			close(ch)
+			fmt.Println("[callChannelClosedExample] ch closed")
+			return
+		}
+
+		ch <- "hello"
+		time.Sleep(200 * time.Millisecond)
 	}
 }
